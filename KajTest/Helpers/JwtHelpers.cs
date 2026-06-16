@@ -3,15 +3,23 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using KajTest.Models;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 namespace KajTest.Helpers
 {
-    public static class JwtHelpers
+    public class JwtHelpers
     {
-        public static string GenetereToken(User user, List<string> roles)
+        private readonly JwtSettings _Jwt;
+
+        public JwtHelpers(IOptions<JwtSettings> Jwt)
         {
-            string secretkey = "ndsf;kew3r$$2dfnbv23;k1234567890ABCDEF";
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretkey));
+            this._Jwt = Jwt.Value;
+        }
+
+        public string GenetereToken(User user, List<string> roles)
+        {
+           
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_Jwt.SerectKey));
 
             var credientials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -32,8 +40,9 @@ namespace KajTest.Helpers
                 
                 claims: claims,
                 signingCredentials: credientials,
-                expires: DateTime.UtcNow.AddHours(1)
-                
+                expires: DateTime.UtcNow.AddMinutes(_Jwt.ExpiryMinutes),
+                issuer : _Jwt.Issuer,
+                audience :_Jwt.Audience                
                 );
 
             string generateToken = new JwtSecurityTokenHandler().WriteToken(token); 

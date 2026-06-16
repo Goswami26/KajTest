@@ -63,7 +63,7 @@ namespace KajTest.Controllers
                 return BadRequest("User Allready Exist");
             }            
 
-            var newuser = new User
+            var user = new User
             {
                 UserName = userDTO.Name,
                 UserEmail = userDTO.Email,
@@ -71,10 +71,25 @@ namespace KajTest.Controllers
                 HashedPassword = HashPassward(userDTO.Password),
             };
 
-            await _db.Users.AddAsync(newuser);
+            await _db.Users.AddAsync(user);
+
+            var defaultRole = await _db.Roles.FirstOrDefaultAsync(r => r.RoleName == "Devloper");
+
+            if (defaultRole != null) 
+            {
+                var newuserRole = new UserRole
+                {
+                    User = user,
+                    Role = defaultRole
+                };
+                
+                await _db.UserRoles.AddAsync(newuserRole);
+
+            }
+
             await _db.SaveChangesAsync();
 
-            return Ok("Registered Sucessfully");
+            return Ok(user);
         }
 
         [Authorize]

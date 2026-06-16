@@ -5,6 +5,7 @@ using KajTest.Data;
 using Microsoft.EntityFrameworkCore;
 using KajTest.DTOs.AuthDtos;
 using KajTest.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace KajTest.Controllers
 {
@@ -13,10 +14,12 @@ namespace KajTest.Controllers
     public class AuthController : ControllerBase
     {
         private readonly AppDbContext _db;
+        private readonly JwtHelpers _jwthelper;
 
-        public AuthController(AppDbContext db)
+        public AuthController(AppDbContext db, JwtHelpers jwthelper)
         {
             this ._db = db;
+            this._jwthelper = jwthelper;
         }
 
         [HttpPost("login")]
@@ -35,7 +38,7 @@ namespace KajTest.Controllers
             }
 
             List<string> roles = ["Admin", "Devloper", "Manager"];
-            string token = JwtHelpers.GenetereToken(user, roles);
+            string token = _jwthelper.GenetereToken(user, roles);
 
             return Ok(token);
         }
@@ -72,6 +75,13 @@ namespace KajTest.Controllers
             await _db.SaveChangesAsync();
 
             return Ok("Registered Sucessfully");
+        }
+
+        [Authorize]
+        [HttpGet("test")]
+        public string Test() 
+        {
+            return "It is Working";
         }
 
         private string HashPassward(string Passward)

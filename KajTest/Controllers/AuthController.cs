@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using KajTest.DTOs.AuthDtos;
 using KajTest.Helpers;
 using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
 
 namespace KajTest.Controllers
 {
@@ -37,7 +38,12 @@ namespace KajTest.Controllers
                 return BadRequest("Username or Passward Invalid");
             }
 
-            List<string> roles = ["Admin", "Devloper", "Manager"];
+            var roles = await _db.UserRoles
+                .Where(ur => ur.UserId == user.UserId)
+                .Select(ur => ur.Role!.RoleName)
+                .ToListAsync();
+
+            //List<string> roles = ["Admin", "Devloper", "Manager"];
             string token = _jwthelper.GenetereToken(user, roles);
 
             return Ok(token);
@@ -93,10 +99,24 @@ namespace KajTest.Controllers
         }
 
         [Authorize]
-        [HttpGet("test")]
-        public string Test() 
+        [HttpGet("me")]
+        public async Task<ActionResult> GetCurrentUser() 
         {
-            return "It is Working";
+            //token - userid
+
+            var userid = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+
+            if(userid == null)
+            {
+                return Unauthorized();
+            }
+
+            int id = int.Parse(userid.Value);
+
+            var user = await _db.Users.FirstOrDefaultAsync(user => user.UserId == id);
+
+            //return Ok(userid.Value);
+            return Ok(user);
         }
 
         private string HashPassward(string Passward)

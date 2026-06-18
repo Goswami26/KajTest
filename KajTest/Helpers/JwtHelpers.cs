@@ -16,12 +16,12 @@ namespace KajTest.Helpers
             this._Jwt = Jwt.Value;
         }
 
-        public string GenetereToken(User user, List<string> roles)
+        public string GenerateToken(User user, List<string> roles)
         {
            
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_Jwt.SerectKey));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_Jwt.SecretKey));
 
-            var credientials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim> 
             { 
@@ -39,7 +39,7 @@ namespace KajTest.Helpers
             var token = new JwtSecurityToken(
                 
                 claims: claims,
-                signingCredentials: credientials,
+                signingCredentials: credentials,
                 expires: DateTime.UtcNow.AddMinutes(_Jwt.ExpiryMinutes),
                 issuer : _Jwt.Issuer,
                 audience :_Jwt.Audience                

@@ -44,9 +44,19 @@ namespace KajTest.Controllers
                 .ToListAsync();
 
             //List<string> roles = ["Admin", "Devloper", "Manager"];
-            string token = _jwthelper.GenetereToken(user, roles);
+            string token = _jwthelper.GenerateToken(user, roles);
 
-            return Ok(token);
+            var response = new AuthResponseDTO
+            {
+                Token = token,
+                Username = user.UserName!,
+                Email = user.UserEmail!,
+                ExpiresIn = DateTime.UtcNow.AddMinutes(1),
+                Roles = roles!
+            };
+
+
+            return Ok(response);
         }
 
         [HttpPost("register")]
@@ -79,7 +89,7 @@ namespace KajTest.Controllers
 
             await _db.Users.AddAsync(user);
 
-            var defaultRole = await _db.Roles.FirstOrDefaultAsync(r => r.RoleName == "Devloper");
+            var defaultRole = await _db.Roles.FirstOrDefaultAsync(role => role.RoleName == "Devloper");
 
             if (defaultRole != null) 
             {
@@ -102,7 +112,7 @@ namespace KajTest.Controllers
         [HttpGet("me")]
         public async Task<ActionResult> GetCurrentUser() 
         {
-            //token - userid
+            //token -> userid
 
             var userid = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
 

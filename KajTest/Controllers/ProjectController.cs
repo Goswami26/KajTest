@@ -54,20 +54,21 @@ namespace KajTest.Controllers
         //delete project
 
         //get project
+
         [HttpGet("{id:int}")]
         [Authorize]
         public async Task<ActionResult> GetProjectById(int id)
         {
-            var project = await _db.Projects.FirstOrDefaultAsync(p => p.ProjectId == id);
+            //var project = await _db.Projects.FirstOrDefaultAsync(p => p.ProjectId == id);
+            var project = await _db.Projects.FindAsync(id);
 
-            if(project == null)
+            if (project == null)
             {
-                return Ok("Project Not Found");
-            };
+                //return Ok("Project Not Found");
+                return NotFound();
 
-
-
-            return Ok("check");
+            }
+            return Ok(project);
         }
 
         //get all project

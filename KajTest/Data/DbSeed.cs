@@ -23,7 +23,7 @@ namespace KajTest.Data
                 await _db.SaveChangesAsync();
             }
 
-            // Seed User
+             // Seed User
             if (!_db.Users.Any())
             {
                 var admin = new User

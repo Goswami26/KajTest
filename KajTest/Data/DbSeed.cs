@@ -7,7 +7,7 @@ namespace KajTest.Data
     {
         public static async Task seedAsync(AppDbContext _db)
         {
-            await _db.Database.MigrateAsync();
+            //await _db.Database.MigrateAsync();
 
             // Seed Role
             if (!_db.Roles.Any())

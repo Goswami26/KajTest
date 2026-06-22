@@ -27,13 +27,6 @@ namespace KajTest.Controllers
         {
             int userid = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-            //if(userid == null)
-            //{
-            //    return Unauthorized();
-            //}
-
-            //var user = await _db.Users.FirstOrDefaultAsync(u => u.UserId == id);
-
             var project = new Project
             {
                 ProjectName = dto.ProjectName,
@@ -42,6 +35,18 @@ namespace KajTest.Controllers
             };
 
             await _db.Projects.AddAsync(project);
+            await _db.SaveChangesAsync();
+
+            var member = new ProjectMember
+            {
+                UserId = userid,
+                ProjectId = project.ProjectId,
+                Role = "ProjectAdmin",
+                JoinOn = DateTime.UtcNow
+            };
+
+            await _db.ProjectMembers.AddAsync(member);
+
             await _db.SaveChangesAsync();
 
             return Ok(new {messege = "Project Create",project.ProjectId });

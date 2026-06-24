@@ -6,7 +6,7 @@ namespace KajTest.DTOs.ProjectMemberDTOs
     {
         public int UserId { get; set; }
         // Roles
-        public string Role { get; set; } = "Member";
+        //public string Role { get; set; } = "Member";
         
     }
 }

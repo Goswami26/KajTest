@@ -54,14 +54,15 @@ namespace KajTest.Controllers
         }
 
         //Add Members
-        [HttpPost]
-        public async Task<ActionResult> AddMember(int projectId, ProjectMemberDTO dto)
+        [HttpPost("{id:int}")]
+        [Authorize]
+        public async Task<ActionResult> AddMember([FromRoute]int id, [FromBody]ProjectMemberDTO dto)
         {
             //userid
             var userId = GetUserId();
 
             //check is the user is project creator or not
-            var isAdmin = await ChecckIfProjectAdmin(projectId, userId);
+            var isAdmin = await ChecckIfProjectAdmin(id, userId);
 
             //if not then forbiden
             if (!isAdmin) 
@@ -70,7 +71,7 @@ namespace KajTest.Controllers
             }
 
             //add projectmember
-            var alreadyexist = await _dbContext.ProjectMembers.AnyAsync(pm => pm.UserId == userId && pm.ProjectId == projectId);
+            var alreadyexist = await _dbContext.ProjectMembers.AnyAsync(pm => pm.UserId == dto.UserId && pm.ProjectId == id);
 
             if (alreadyexist) 
             {
@@ -79,8 +80,8 @@ namespace KajTest.Controllers
 
             var member = new ProjectMember
             {
-                UserId = userId,
-                ProjectId = projectId,
+                UserId = dto.UserId,
+                ProjectId = id,
                 Role = "Member",
                 JoinOn = DateTime.UtcNow
             };
@@ -106,7 +107,7 @@ namespace KajTest.Controllers
         private async Task<bool> ChecckIfProjectAdmin(int projectId, int userId)
         {
 
-            return await _dbContext.ProjectMembers.AllAsync(pm => pm.UserId == userId && pm.ProjectId == projectId && pm.Role == "ProjectAdmin");
+            return await _dbContext.ProjectMembers.AnyAsync(pm => pm.UserId == userId && pm.ProjectId == projectId && pm.Role == "ProjectAdmin");
         }
 
     }
